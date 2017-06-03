@@ -2,12 +2,12 @@
 
 > Karma preprocessor to compile Nim on the fly.
 
-NOT FUNCTIONAL YET -- WIP
-
 ## Installation
 
-The easiest way is to keep `karma-nim-preprocessor` as a devDependency.
-You can simple do it by:
+This plugin requires to have a working `nim` compiler in your path
+(see [Nim repo](https://github.com/nim-lang/Nim#compiling) for installation instructions).
+
+`karma-nim-preprocessor` can be installed as usual:
 ```bash
 npm install karma-nim-preprocessor --save-dev
 ```

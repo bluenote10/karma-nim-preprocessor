@@ -1,4 +1,5 @@
-var path = require('path')
+var path = require('path');
+var fs = require('fs');
 
 var createNimPreprocessor = function (args, config, logger, helper) {
   config = config || {}
@@ -14,34 +15,39 @@ var createNimPreprocessor = function (args, config, logger, helper) {
     return filepath.replace(/\.nim$/, '.js')
   }
 
+
   return function (content, file, done) {
     var result = null
     var map
     var datauri
 
-    log.debug('Processing "%s".', file.originalPath)
+    log.info('Processing "%s".', file.originalPath)
     file.path = transformPath(file.originalPath)
+    log.info('Processing "%s".', file.path)
 
-    try {
-      // result = coffee.compile(content, opts)
-      result = {};
-      result.js = "console.log('hello world');";
-    } catch (e) {
-      log.error('%s\n  at %s:%d', e.message, file.originalPath, e.location.first_line)
-      return done(e, null)
-    }
+    var exec = require('child_process').exec;
+    var cmd = 'nim js -o:"' + file.path + '" "' + file.originalPath + '"';
+    log.info(cmd);
+    exec(cmd, function callback(error, stdout, stderr) {
+      // log.info(error);
+      // log.info(stdout);
+      // log.info(stderr);
+      if (error) {
+        log.error("Compilation failed:\n" + error.message);
+        done(error, null);
+      } else {
+        log.info("Compilation successful.\n" + stdout);
+        fs.readFile(file.path, 'utf8', function (error, data) {
+          if (error) {
+            log.error("Failed to read file:", file.path);
+            done(error, null);
+          } else {
+            done(null, data);
+          }
+        });
+      }
+    });
 
-    if (result.v3SourceMap) {
-      map = JSON.parse(result.v3SourceMap)
-      map.sources[0] = path.basename(file.originalPath)
-      map.sourcesContent = [content]
-      map.file = path.basename(file.path)
-      file.sourceMap = map
-      datauri = 'data:application/json;charset=utf-8;base64,' + new Buffer(JSON.stringify(map)).toString('base64')
-      done(null, result.js + '\n//# sourceMappingURL=' + datauri + '\n')
-    } else {
-      done(null, result.js || result)
-    }
   }
 }
 
