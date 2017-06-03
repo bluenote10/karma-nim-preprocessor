@@ -1,6 +1,6 @@
 # karma-nim-preprocessor
 
-> Preprocessor to compile Nim on the fly.
+> Karma preprocessor to compile Nim on the fly.
 
 NOT FUNCTIONAL YET -- WIP
 

@@ -1,11 +1,9 @@
-var coffee = require('coffee-script')
 var path = require('path')
-var assign = require('object-assign')
 
-var createCoffeePreprocessor = function (args, config, logger, helper) {
+var createNimPreprocessor = function (args, config, logger, helper) {
   config = config || {}
 
-  var log = logger.create('preprocessor.coffee')
+  var log = logger.create('preprocessor.nim')
   var defaultOptions = {
     bare: true,
     sourceMap: false
@@ -13,7 +11,7 @@ var createCoffeePreprocessor = function (args, config, logger, helper) {
   var options = helper.merge(defaultOptions, args.options || {}, config.options || {})
 
   var transformPath = args.transformPath || config.transformPath || function (filepath) {
-    return filepath.replace(/\.coffee$/, '.js')
+    return filepath.replace(/\.nim$/, '.js')
   }
 
   return function (content, file, done) {
@@ -24,11 +22,10 @@ var createCoffeePreprocessor = function (args, config, logger, helper) {
     log.debug('Processing "%s".', file.originalPath)
     file.path = transformPath(file.originalPath)
 
-    // Clone the options because coffee.compile mutates them
-    var opts = assign({}, options)
-
     try {
-      result = coffee.compile(content, opts)
+      // result = coffee.compile(content, opts)
+      result = {};
+      result.js = "console.log('hello world');";
     } catch (e) {
       log.error('%s\n  at %s:%d', e.message, file.originalPath, e.location.first_line)
       return done(e, null)
@@ -48,9 +45,9 @@ var createCoffeePreprocessor = function (args, config, logger, helper) {
   }
 }
 
-createCoffeePreprocessor.$inject = ['args', 'config.coffeePreprocessor', 'logger', 'helper']
+createNimPreprocessor.$inject = ['args', 'config.nimPreprocessor', 'logger', 'helper']
 
 // PUBLISH DI MODULE
 module.exports = {
-  'preprocessor:coffee': ['factory', createCoffeePreprocessor]
+  'preprocessor:nim': ['factory', createNimPreprocessor]
 }
